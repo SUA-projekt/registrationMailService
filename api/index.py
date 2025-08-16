@@ -5,6 +5,7 @@ from email.message import EmailMessage
 
 def handler(request):
     try:
+        # Parse body
         body = request.get_json()
         user_email = body.get("email")
         user_name = body.get("name", "")
