@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment files
+.env
+.env.*
+
+# Editor config
+.idea/
+*.vscode/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Vercel build & cache folders (optional)
+.vercel/
+.next/
