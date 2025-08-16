@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
     from: process.env.MAIL_FROM,
     to: email,
     subject: 'Welcome to Parking Service!',
-    text: `Hi ${name || ""} ${surname || ""}, thanks for registering at Parking Service!`
+    text: `Hi ${name || ""} ${surname || ""}, thanks for registering at Parking Service FERI MARIBOR, where no parking spots are free!`
   };
 
   try {
