@@ -1,35 +1,38 @@
 import os
-from fastapi import Request
-from fastapi.responses import JSONResponse
-from email.message import EmailMessage
+import json
 import smtplib
+from email.message import EmailMessage
 
-async def handler(request: Request):
-    data = await request.json()
-    user_email = data.get("email")
-    user_name = data.get("name", "")
-    user_surname = data.get("surname", "")
-
-    if not user_email:
-        return JSONResponse(status_code=400, content={"error": "Missing email"})
-
-    msg = EmailMessage()
-    msg["Subject"] = "Welcome to Parking Service!"
-    msg["From"] = os.getenv("MAIL_FROM")
-    msg["To"] = user_email
-    msg.set_content(f"Hi {user_name} {user_surname}, thanks for registering at Parking Service!")
-
+def handler(request):
     try:
-        with smtplib.SMTP(os.getenv("SMTP_HOST"), int(os.getenv("SMTP_PORT"))) as smtp:
+        body = request.get_json()
+        user_email = body.get("email")
+        user_name = body.get("name", "")
+        user_surname = body.get("surname", "")
+
+        if not user_email:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": "Missing email"})
+            }
+
+        msg = EmailMessage()
+        msg["Subject"] = "Welcome to Parking Service!"
+        msg["From"] = os.environ["MAIL_FROM"]
+        msg["To"] = user_email
+        msg.set_content(f"Hi {user_name} {user_surname}, thanks for registering at Parking Service!")
+
+        with smtplib.SMTP(os.environ["SMTP_HOST"], int(os.environ["SMTP_PORT"])) as smtp:
             smtp.starttls()
-            smtp.login(os.getenv("SMTP_USERNAME"), os.getenv("SMTP_PASSWORD"))
+            smtp.login(os.environ["SMTP_USERNAME"], os.environ["SMTP_PASSWORD"])
             smtp.send_message(msg)
+
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": "Welcome email sent"})
+        }
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": f"Failed to send email: {str(e)}"})
-
-    return JSONResponse({"message": "Welcome email sent"})
-
-# Vercel handler must be named "app"
-from fastapi import FastAPI
-app = FastAPI()
-app.add_api_route("/", handler, methods=["POST"])
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": str(e)})
+        }
